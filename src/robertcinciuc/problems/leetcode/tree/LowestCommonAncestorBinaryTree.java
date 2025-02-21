@@ -1,8 +1,5 @@
 package robertcinciuc.problems.leetcode.tree;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class LowestCommonAncestorBinaryTree {
 
     public static class TreeNode {
@@ -12,49 +9,69 @@ public class LowestCommonAncestorBinaryTree {
         TreeNode(int x) { val = x; }
     }
 
-    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+    public static class TriValue{
+        public TreeNode node;
+        public boolean foundPBelow;
+        public boolean foundQBelow;
 
-        List<TreeNode> pathToP = getToNode(new ArrayList<>(), root, p);
-        List<TreeNode> pathToQ = getToNode(new ArrayList<>(), root, q);
-
-        int len = pathToP.size();
-        if(pathToP.size() > pathToQ.size()){
-            len = pathToQ.size();
+        public TriValue(TreeNode node, boolean foundPBelow, boolean foundQBelow){
+            this.node = node;
+            this.foundPBelow = foundPBelow;
+            this.foundQBelow = foundQBelow;
         }
-
-        TreeNode lastCommon = root;
-        for(int i = 0; i < len; ++i){
-            if(pathToP.get(i) != pathToQ.get(i)){
-                return lastCommon;
-            }else{
-                lastCommon = pathToP.get(i);
-            }
-        }
-
-        return lastCommon;
     }
 
-    public List<TreeNode> getToNode(List<TreeNode> path, TreeNode currentNode, TreeNode destination){
-        path.add(currentNode);
-        if(destination != currentNode){
-            List<TreeNode> response;
-            if(currentNode.left != null){
-                response = getToNode(path, currentNode.left, destination);
-                if(response != null){
-                    return response;
-                }
-            }
-            if(currentNode.right != null){
-                response = getToNode(path, currentNode.right, destination);
-                if(response != null){
-                    return response;
-                }
-            }
-        } else {
-            return path;
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        TriValue triValue = recursion(root, p, q);
+        return triValue.node;
+    }
+
+    public TriValue recursion(TreeNode currentNode, TreeNode p, TreeNode q){
+        TriValue response;
+        boolean foundPBelow = false;
+        boolean foundQBelow = false;
+
+        if(currentNode == p){
+            foundPBelow = true;
         }
-        path.remove(path.size() - 1);
-        return null;
+        if(currentNode == q){
+            foundQBelow = true;
+        }
+
+        if(currentNode.left != null){
+            response = recursion(currentNode.left, p, q);
+            if(response != null){
+                if(response.node != null){
+                    return response;
+                }
+                if(response.foundPBelow){
+                    foundPBelow = true;
+                }
+                if(response.foundQBelow){
+                    foundQBelow = true;
+                }
+            }
+        }
+        if(currentNode.right != null){
+            response = recursion(currentNode.right, p, q);
+            if(response != null){
+                if(response.node != null){
+                    return response;
+                }
+                if(response.foundPBelow){
+                    foundPBelow = true;
+                }
+                if(response.foundQBelow){
+                    foundQBelow = true;
+                }
+            }
+        }
+
+        if(foundPBelow && foundQBelow){
+            return new TriValue(currentNode, true, true);
+        }
+
+        return new TriValue(null, foundPBelow, foundQBelow);
     }
 
     public static void main(String[] args){
