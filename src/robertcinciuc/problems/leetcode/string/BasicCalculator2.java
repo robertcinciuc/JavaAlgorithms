@@ -2,29 +2,41 @@ package robertcinciuc.problems.leetcode.string;
 
 public class BasicCalculator2 {
 
+    public static class ExpressionResult{
+        final int result;
+        final int start;
+        final int end;
+
+        public ExpressionResult(int result, int start, int end) {
+            this.result = result;
+            this.start = start;
+            this.end = end;
+        }
+    }
+
     public int calculate(String s) {
         String trimmed = trimSpaces(s);
-        Integer[] calculations = new Integer[trimmed.length()];
+        ExpressionResult[] calculations = new ExpressionResult[trimmed.length()];
         Integer lastValue = null;
 //        Multiplication & division
         for(int i = 0; i < trimmed.length(); ++i){
             if(trimmed.charAt(i) == '*' || trimmed.charAt(i) == '/'){
-                int a = calculations[i - 1] != null ? calculations[i - 1] : getPrev(trimmed, i);
-                int b = calculations[i + 1] != null ? calculations[i + 1] : getNext(trimmed, i);
-                int result = calculateExpression(a, b, trimmed.charAt(i));
+                ExpressionResult a = getPrevExpression(calculations, i, trimmed);
+                ExpressionResult b = getNextExpression(calculations, i, trimmed);
+                int result = calculateExpression(a.result, b.result, trimmed.charAt(i));
                 lastValue = result;
-                markCalculation(calculations, result, i - String.valueOf(a).length(), i + String.valueOf(b).length());
+                markCalculation(calculations, result, a.start, b.end);
             }
         }
 
 //        Addition & subtraction
         for(int i = 0; i < trimmed.length(); ++i){
             if(trimmed.charAt(i) == '+' || trimmed.charAt(i) == '-'){
-                int a = calculations[i - 1] != null ? calculations[i - 1] : getPrev(trimmed, i);
-                int b = calculations[i + 1] != null ? calculations[i + 1] : getNext(trimmed, i);
-                int result = calculateExpression(a, b, trimmed.charAt(i));
+                ExpressionResult a = getPrevExpression(calculations, i, trimmed);
+                ExpressionResult b = getNextExpression(calculations, i, trimmed);
+                int result = calculateExpression(a.result, b.result, trimmed.charAt(i));
                 lastValue = result;
-                markCalculation(calculations, result, i - String.valueOf(a).length(), i + String.valueOf(b).length());
+                markCalculation(calculations, result, a.start, b.end);
             }
         }
 
@@ -45,29 +57,51 @@ public class BasicCalculator2 {
         return sb.toString();
     }
 
-    public int getPrev(String s, int i){
+    public String getPrev(String s, int i){
         StringBuilder sb = new StringBuilder();
         i--;
         while(i >= 0 && s.charAt(i) != '+' && s.charAt(i) != '-' && s.charAt(i) != '*' && s.charAt(i) != '/'){
             sb.insert(0, s.charAt(i));
             i--;
         }
-        return Integer.parseInt(sb.toString());
+        return sb.toString();
     }
 
-    public int getNext(String s, int i){
+    public ExpressionResult getPrevExpression(ExpressionResult[] calculations, int i, String trimmed){
+        ExpressionResult a;
+        if(calculations[i - 1] != null){
+            a = calculations[i - 1];
+        }else{
+            String element = getPrev(trimmed, i);
+            a = new ExpressionResult(Integer.parseInt(element), i - element.length(), i);
+        }
+        return a;
+    }
+
+    public String getNext(String s, int i){
         StringBuilder sb = new StringBuilder();
         i++;
         while(i < s.length() && s.charAt(i) != '+' && s.charAt(i) != '-' && s.charAt(i) != '*' && s.charAt(i) != '/'){
             sb.append(s.charAt(i));
             i++;
         }
-        return Integer.parseInt(sb.toString());
+        return sb.toString();
     }
 
-    public void markCalculation(Integer[] calculations, Integer result, int start, int end){
+    public ExpressionResult getNextExpression(ExpressionResult[] calculations, int i, String trimmed){
+        ExpressionResult b;
+        if(calculations[i + 1] != null){
+            b = calculations[i + 1];
+        }else{
+            String element = getNext(trimmed, i);
+            b = new ExpressionResult(Integer.parseInt(element), i, i + element.length());
+        }
+        return b;
+    }
+
+    public void markCalculation(ExpressionResult[] calculations, Integer result, int start, int end){
         for(int i = start; i <= end; ++i){
-            calculations[i] = result;
+            calculations[i] = new ExpressionResult(result, start, end);
         }
     }
 
