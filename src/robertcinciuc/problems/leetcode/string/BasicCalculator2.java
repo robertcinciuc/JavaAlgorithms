@@ -15,23 +15,22 @@ public class BasicCalculator2 {
     }
 
     public int calculate(String s) {
-        String trimmed = trimSpaces(s);
         Stack<Element> sumStack = new Stack<>();
         int sign = 1;
         int i = 0;
-        while(i < trimmed.length()){
-            if(trimmed.charAt(i) == '+' || trimmed.charAt(i) == '-' || trimmed.charAt(i) == '*' || trimmed.charAt(i) == '/'){
-                if(trimmed.charAt(i) == '-'){
+        while(i < s.length()){
+            if(s.charAt(i) == '+' || s.charAt(i) == '-' || s.charAt(i) == '*' || s.charAt(i) == '/'){
+                if(s.charAt(i) == '-'){
                     sign = -1;
                     i++;
-                }else if(trimmed.charAt(i) == '+'){
+                }else if(s.charAt(i) == '+'){
                     sign = 1;
                     i++;
                 }else{
                     Element last = sumStack.pop();
-                    Element next = getNext(trimmed, i + 1);
+                    Element next = getNext(s, i + 1);
 
-                    if(trimmed.charAt(i) == '*'){
+                    if(s.charAt(i) == '*'){
                         next.value = last.value * next.value;
                     }else{
                         next.value = last.value / next.value;
@@ -40,7 +39,7 @@ public class BasicCalculator2 {
                     i = next.end;
                 }
             }else{
-                Element elem = getNext(trimmed, i);
+                Element elem = getNext(s, i);
                 elem.value *= sign;
                 sumStack.add(elem);
                 i = elem.end;
@@ -55,24 +54,13 @@ public class BasicCalculator2 {
         return result;
     }
 
-    public String trimSpaces(String s){
-        StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < s.length(); ++i){
-            if(s.charAt(i) != ' '){
-                sb.append(s.charAt(i));
-            }
-        }
-        return sb.toString();
-    }
-
-
     public Element getNext(String s, int i){
         StringBuilder sb = new StringBuilder();
         while(i < s.length() && s.charAt(i) != '+' && s.charAt(i) != '-' && s.charAt(i) != '*' && s.charAt(i) != '/'){
             sb.append(s.charAt(i));
             i++;
         }
-        return new Element(Integer.parseInt(sb.toString()), i);
+        return new Element(Integer.parseInt(sb.toString().trim()), i);
     }
 
     public static void main(String[] args){
