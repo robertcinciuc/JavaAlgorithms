@@ -1,50 +1,58 @@
 package robertcinciuc.problems.leetcode.string;
 
+import java.util.Stack;
+
 public class BasicCalculator2 {
 
-    public static class ExpressionResult{
-        final int result;
-        final int start;
-        final int end;
+    public static class Element{
+        public final int end;
+        public int value;
 
-        public ExpressionResult(int result, int start, int end) {
-            this.result = result;
-            this.start = start;
+        public Element(int value, int end) {
             this.end = end;
+            this.value = value;
         }
     }
 
     public int calculate(String s) {
         String trimmed = trimSpaces(s);
-        ExpressionResult[] calculations = new ExpressionResult[trimmed.length()];
-        Integer lastValue = null;
-//        Multiplication & division
-        for(int i = 0; i < trimmed.length(); ++i){
-            if(trimmed.charAt(i) == '*' || trimmed.charAt(i) == '/'){
-                ExpressionResult a = getPrevExpression(calculations, i, trimmed);
-                ExpressionResult b = getNextExpression(calculations, i, trimmed);
-                int result = calculateExpression(a.result, b.result, trimmed.charAt(i));
-                lastValue = result;
-                i = markCalculation(calculations, result, a.start, b.end);
+        Stack<Element> sumStack = new Stack<>();
+        int sign = 1;
+        int i = 0;
+        while(i < trimmed.length()){
+            if(trimmed.charAt(i) == '+' || trimmed.charAt(i) == '-' || trimmed.charAt(i) == '*' || trimmed.charAt(i) == '/'){
+                if(trimmed.charAt(i) == '-'){
+                    sign = -1;
+                    i++;
+                }else if(trimmed.charAt(i) == '+'){
+                    sign = 1;
+                    i++;
+                }else{
+                    Element last = sumStack.pop();
+                    Element next = getNext(trimmed, i + 1);
+
+                    if(trimmed.charAt(i) == '*'){
+                        next.value = last.value * next.value;
+                    }else{
+                        next.value = last.value / next.value;
+                    }
+                    sumStack.add(next);
+                    i = next.end;
+                }
+            }else{
+                Element elem = getNext(trimmed, i);
+                elem.value *= sign;
+                sumStack.add(elem);
+                i = elem.end;
             }
         }
 
-//        Addition & subtraction
-        for(int i = 0; i < trimmed.length(); ++i){
-            if(trimmed.charAt(i) == '+' || trimmed.charAt(i) == '-'){
-                ExpressionResult a = getPrevExpression(calculations, i, trimmed);
-                ExpressionResult b = getNextExpression(calculations, i, trimmed);
-                int result = calculateExpression(a.result, b.result, trimmed.charAt(i));
-                lastValue = result;
-                i = markCalculation(calculations, result, a.start, b.end);
-            }
+        int result = 0;
+        while(sumStack.size() > 0){
+            result += sumStack.pop().value;
         }
 
-        if(lastValue == null){
-            return Integer.parseInt(trimmed);
-        }
-
-        return lastValue;
+        return result;
     }
 
     public String trimSpaces(String s){
@@ -57,71 +65,20 @@ public class BasicCalculator2 {
         return sb.toString();
     }
 
-    public String getPrev(String s, int i){
-        StringBuilder sb = new StringBuilder();
-        i--;
-        while(i >= 0 && s.charAt(i) != '+' && s.charAt(i) != '-' && s.charAt(i) != '*' && s.charAt(i) != '/'){
-            sb.insert(0, s.charAt(i));
-            i--;
-        }
-        return sb.toString();
-    }
 
-    public ExpressionResult getPrevExpression(ExpressionResult[] calculations, int i, String trimmed){
-        ExpressionResult a;
-        if(calculations[i - 1] != null){
-            a = calculations[i - 1];
-        }else{
-            String element = getPrev(trimmed, i);
-            a = new ExpressionResult(Integer.parseInt(element), i - element.length(), i);
-        }
-        return a;
-    }
-
-    public String getNext(String s, int i){
+    public Element getNext(String s, int i){
         StringBuilder sb = new StringBuilder();
-        i++;
         while(i < s.length() && s.charAt(i) != '+' && s.charAt(i) != '-' && s.charAt(i) != '*' && s.charAt(i) != '/'){
             sb.append(s.charAt(i));
             i++;
         }
-        return sb.toString();
-    }
-
-    public ExpressionResult getNextExpression(ExpressionResult[] calculations, int i, String trimmed){
-        ExpressionResult b;
-        if(calculations[i + 1] != null){
-            b = calculations[i + 1];
-        }else{
-            String element = getNext(trimmed, i);
-            b = new ExpressionResult(Integer.parseInt(element), i, i + element.length());
-        }
-        return b;
-    }
-
-    public int markCalculation(ExpressionResult[] calculations, Integer result, int start, int end){
-        ExpressionResult expressionResult = new ExpressionResult(result, start, end);
-        calculations[start] = expressionResult;
-        calculations[end] = expressionResult;
-        return end;
-    }
-
-    public int calculateExpression(int a, int b, char operation){
-        if(operation == '*'){
-            return a * b;
-        }else if(operation == '/' && b != 0){
-            return a / b;
-        }else if(operation == '+'){
-            return a + b;
-        }else{
-            return a - b;
-        }
+        return new Element(Integer.parseInt(sb.toString()), i);
     }
 
     public static void main(String[] args){
         BasicCalculator2 calculator = new BasicCalculator2();
-//        System.out.println(calculator.calculate("3+2*2"));
-//        System.out.println(calculator.calculate("3/2"));
+        System.out.println(calculator.calculate("3+2*2"));
+        System.out.println(calculator.calculate("3/2"));
         System.out.println(calculator.calculate("1*2-3/4+5*6-7*8+9/10"));
     }
 }
