@@ -25,7 +25,7 @@ public class BasicCalculator2 {
                 ExpressionResult b = getNextExpression(calculations, i, trimmed);
                 int result = calculateExpression(a.result, b.result, trimmed.charAt(i));
                 lastValue = result;
-                markCalculation(calculations, result, a.start, b.end);
+                i = markCalculation(calculations, result, a.start, b.end);
             }
         }
 
@@ -36,7 +36,7 @@ public class BasicCalculator2 {
                 ExpressionResult b = getNextExpression(calculations, i, trimmed);
                 int result = calculateExpression(a.result, b.result, trimmed.charAt(i));
                 lastValue = result;
-                markCalculation(calculations, result, a.start, b.end);
+                i = markCalculation(calculations, result, a.start, b.end);
             }
         }
 
@@ -99,10 +99,11 @@ public class BasicCalculator2 {
         return b;
     }
 
-    public void markCalculation(ExpressionResult[] calculations, Integer result, int start, int end){
-        for(int i = start; i <= end; ++i){
-            calculations[i] = new ExpressionResult(result, start, end);
-        }
+    public int markCalculation(ExpressionResult[] calculations, Integer result, int start, int end){
+        ExpressionResult expressionResult = new ExpressionResult(result, start, end);
+        calculations[start] = expressionResult;
+        calculations[end] = expressionResult;
+        return end;
     }
 
     public int calculateExpression(int a, int b, char operation){
