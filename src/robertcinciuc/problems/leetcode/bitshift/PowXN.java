@@ -1,4 +1,4 @@
-package robertcinciuc.problems.leetcode;
+package robertcinciuc.problems.leetcode.bitshift;
 
 public class PowXN {
     public double myPow(double x, int n) {
