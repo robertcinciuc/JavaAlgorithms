@@ -6,12 +6,19 @@ public class PowXN {
             return 1;
         }
         double result = 1;
-        for(int i = 0; i < Math.abs(n); i ++){
-            result = result * x;
+        int n1 = Math.abs(n);
+        while(n1 != 0){
+            if((n1 & 1) != 0){
+                result *= x;
+            }
+            x *= x;
+            n1 >>>= 1;
         }
+
         if(n < 0){
-            return 1.0 / result;
+            return  1.0 / result;
         }
+
         return result;
     }
 
