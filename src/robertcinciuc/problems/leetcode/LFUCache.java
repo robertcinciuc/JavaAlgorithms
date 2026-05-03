@@ -77,6 +77,7 @@ public class LFUCache {
             if (dataMap.size() == capacity) {
                 dataMap.remove(start.next.key);
                 freqMap.remove(start.next.key);
+                start.next.next.prev = start;
                 start.next = start.next.next;
             }
 
@@ -122,8 +123,28 @@ public class LFUCache {
         System.out.println(lfuCache.get(2));
     }
 
+    public static void test2() {
+//        [[3],[1,1],[2,2],[3,3],[4,4],[4],[3],[2],[1],[5,5],[1],[2],[3],[4],[5]]
+        LFUCache lfuCache = new LFUCache(3);
+        lfuCache.put(1, 1);
+        lfuCache.put(2, 2);
+        lfuCache.put(3, 3);
+        lfuCache.put(4, 4);
+        System.out.println(lfuCache.get(4));
+        System.out.println(lfuCache.get(3));
+        System.out.println(lfuCache.get(2));
+        System.out.println(lfuCache.get(1));
+        lfuCache.put(5, 5);
+        System.out.println(lfuCache.get(1));
+        System.out.println(lfuCache.get(2));
+        System.out.println(lfuCache.get(3));
+        System.out.println(lfuCache.get(4));
+        System.out.println(lfuCache.get(5));
+    }
+
     public static void main(String[] args) {
 //        defaultTest();
-        test1();
+//        test1();
+        test2();
     }
 }
