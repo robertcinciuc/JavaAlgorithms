@@ -58,26 +58,25 @@ public class LFUCache {
     }
 
     public void put(int key, int value) {
-        FreqNode freqNode;
-        if (dataMap.containsKey(key)) {
-            dataMap.remove(key);
-            dataMap.put(key, value);
-            freqNode = freqMap.get(key);
-
-            //Update old location
-            freqNode.prev.next = freqNode.next;
-            freqNode.next.prev = freqNode.prev;
-        } else {
-            if (dataMap.size() == capacity) {
-                dataMap.remove(start.next.key);
-                freqMap.remove(start.next.key);
-                start.next.next.prev = start;
-                start.next = start.next.next;
-            }
-
-            dataMap.put(key, value);
-            freqNode = new FreqNode(key);
+        if (capacity == 0) {
+            return;
         }
+
+        if (dataMap.containsKey(key)) {
+            dataMap.put(key, value);
+            get(key);
+            return;
+        }
+
+        if (dataMap.size() == capacity) {
+            dataMap.remove(start.next.key);
+            freqMap.remove(start.next.key);
+            start.next.next.prev = start;
+            start.next = start.next.next;
+        }
+
+        dataMap.put(key, value);
+        FreqNode freqNode = new FreqNode(key);
 
         FreqNode iter = start;
         while(iter != end && iter.freq == 1) {
@@ -138,6 +137,6 @@ public class LFUCache {
     public static void main(String[] args) {
 //        defaultTest();
 //        test1();
-//        test2();
+        test2();
     }
 }
