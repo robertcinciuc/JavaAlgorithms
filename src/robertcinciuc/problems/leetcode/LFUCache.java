@@ -10,11 +10,9 @@ public class LFUCache {
         public int freq;
         public FreqNode prev;
         public FreqNode next;
-        public long lastUsed;
 
         public FreqNode(int key) {
             this.key = key;
-            this.lastUsed = System.currentTimeMillis();
             this.freq = 1;
         }
     }
@@ -43,10 +41,6 @@ public class LFUCache {
 
         FreqNode iter = foundNode;
         while (iter != end && iter.freq <= foundNode.freq) {
-            iter = iter.next;
-        }
-
-        while(iter != end && iter.lastUsed <= foundNode.lastUsed) {
             iter = iter.next;
         }
 
@@ -83,7 +77,6 @@ public class LFUCache {
 
             dataMap.put(key, value);
             freqNode = new FreqNode(key);
-            freqNode.lastUsed = System.currentTimeMillis();
         }
 
         FreqNode iter = start;
@@ -145,6 +138,6 @@ public class LFUCache {
     public static void main(String[] args) {
 //        defaultTest();
 //        test1();
-        test2();
+//        test2();
     }
 }
