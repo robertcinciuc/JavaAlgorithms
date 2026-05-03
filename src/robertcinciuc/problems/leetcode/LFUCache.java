@@ -64,19 +64,26 @@ public class LFUCache {
     }
 
     public void put(int key, int value) {
+        FreqNode freqNode;
         if (dataMap.containsKey(key)) {
-            return;
-        }
+            dataMap.remove(key);
+            dataMap.put(key, value);
+            freqNode = freqMap.get(key);
 
-        if (dataMap.size() == capacity) {
-            dataMap.remove(start.next.key);
-            freqMap.remove(start.next.key);
-            start.next = start.next.next;
-        }
+            //Update old location
+            freqNode.prev.next = freqNode.next;
+            freqNode.next.prev = freqNode.prev;
+        } else {
+            if (dataMap.size() == capacity) {
+                dataMap.remove(start.next.key);
+                freqMap.remove(start.next.key);
+                start.next = start.next.next;
+            }
 
-        dataMap.put(key, value);
-        FreqNode freqNode = new FreqNode(key);
-        freqNode.lastUsed = System.currentTimeMillis();
+            dataMap.put(key, value);
+            freqNode = new FreqNode(key);
+            freqNode.lastUsed = System.currentTimeMillis();
+        }
 
         FreqNode iter = start;
         while(iter != end && iter.freq == 1) {
@@ -91,8 +98,7 @@ public class LFUCache {
         freqMap.put(key, freqNode);
     }
 
-    public static void main(String[] args) {
-//        [[2], [1, 1], [2, 2], [1], [3, 3], [2], [3], [4, 4], [1], [3], [4]]
+    public static void defaultTest() {
         LFUCache lfuCache = new LFUCache(2);
         lfuCache.put(1, 1);
         lfuCache.put(2, 2);
@@ -104,5 +110,20 @@ public class LFUCache {
         System.out.println(lfuCache.get(1));
         System.out.println(lfuCache.get(3));
         System.out.println(lfuCache.get(4));
+    }
+
+    public static void test1() {
+//        [[2],[3,1],[2,1],[2,2],[4,4],[2]]
+        LFUCache lfuCache = new LFUCache(2);
+        lfuCache.put(3, 1);
+        lfuCache.put(2, 1);
+        lfuCache.put(2, 2);
+        lfuCache.put(4, 4);
+        System.out.println(lfuCache.get(2));
+    }
+
+    public static void main(String[] args) {
+//        defaultTest();
+        test1();
     }
 }
