@@ -5,7 +5,6 @@ import java.util.*;
 public class TopKFrequentElements {
 
     public int[] topKFrequent(int[] nums, int k) {
-
         Map<Integer, Integer> freq = new HashMap<>();
 
         for(int num : nums){
@@ -14,26 +13,21 @@ public class TopKFrequentElements {
 
         Map<Integer, Set<Integer>> inverseFreq = new TreeMap<>(Collections.reverseOrder());
         for(Integer key : freq.keySet()){
-            if(!inverseFreq.containsKey(freq.get(key))){
-                inverseFreq.put(freq.get(key), new HashSet<>());
-            }
-            inverseFreq.get(freq.get(key)).add(key);
+            inverseFreq.computeIfAbsent(freq.get(key), myKey -> new HashSet<>()).add(key);
         }
 
         int i = 0;
-        List<Integer> resp = new ArrayList<>();
+        int[] resp = new int[k];
         for(Integer freqForVal: inverseFreq.keySet()){
-            if(i < k){
-                ArrayList<Integer> vals = new ArrayList<>(inverseFreq.get(freqForVal));
-                while(vals.size() > 0){
-                    Integer val = vals.remove(vals.size() - 1);
-                    resp.add(val);
-                    ++i;
+            for(Integer val: inverseFreq.get(freqForVal)) {
+                if (i < k) {
+                    resp[i] = val;
                 }
+                ++i;
             }
         }
 
-        return resp.stream().mapToInt(e -> e).toArray();
+        return resp;
     }
 
     public static void main(String[] args) {
