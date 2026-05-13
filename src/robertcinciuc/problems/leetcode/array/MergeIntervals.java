@@ -1,7 +1,6 @@
 package robertcinciuc.problems.leetcode.array;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 public class MergeIntervals {
@@ -16,39 +15,36 @@ public class MergeIntervals {
         }
     }
 
-    public static class IntervalComparator implements Comparator<Interval> {
-
-        @Override
-        public int compare(Interval o1, Interval o2) {
-            if(o1.start < o2.start){
-                return -1;
-            }else if(o1.start > o2.start){
-                return 1;
-            }
-            return 0;
-        }
-    }
-
     public int[][] merge(int[][] intervals) {
         List<Interval> intervalsList = new ArrayList<>();
         for (int[] interval : intervals) {
             intervalsList.add(new Interval(interval[0], interval[1]));
         }
-        intervalsList.sort(new IntervalComparator());
+
+        intervalsList.sort((a, b) -> {
+            if(a.start < b.start){
+                return -1;
+            }else if(a.start > b.start){
+                return 1;
+            }
+            return 0;
+        });
 
         List<Interval> mergedList = new ArrayList<>();
-        int currentStart = intervalsList.get(0).start;
-        int currentEnd = intervalsList.get(0).end;
+        int currentStart = intervalsList.getFirst().start;
+        int currentEnd = intervalsList.getFirst().end;
         for(int i = 1; i < intervalsList.size(); ++i){
-            if(intervalsList.get(i).start > currentEnd){
+            if (intervalsList.get(i).start <= currentEnd) {
+                if (intervalsList.get(i).end > currentEnd) {
+                    currentEnd = intervalsList.get(i).end;
+                }
+            } else {
                 mergedList.add(new Interval(currentStart, currentEnd));
                 currentStart = intervalsList.get(i).start;
-            }
-            if(intervalsList.get(i).end > currentEnd){
                 currentEnd = intervalsList.get(i).end;
             }
         }
-        if(intervalsList.size() > 0){
+        if(!intervalsList.isEmpty()){
             mergedList.add(new Interval(currentStart, currentEnd));
         }
 
